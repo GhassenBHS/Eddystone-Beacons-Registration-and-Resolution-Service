@@ -1,12 +1,14 @@
 /**
  * Created by ghassen on 15/04/17.
  */
-const managers =require('../Managers/convert')
+const eid_manager =require('../Eddystone/EidComputation') ;
 const crypto = require('crypto');
 const base64 = require('base-64');
 const validator = require('validator');
 const HKDF = require('hkdf');
 const aesjs = require('aes-js');
+var mongoose = require('mongoose');
+var RegistredBeacons= require('../Models/beacon.js');
 
 
     /**
@@ -90,71 +92,45 @@ exports.registerBeaconOwner=function (request,callback) {
     hkdf.derive('', 32, function(key) {
 
         var AESkey = key.toString('hex').substring(0,32);
+        console.log("AES",AESkey) ;
+        eid_manager.GetEid('ac43b2580b62261217d601d88277e587',scalar,beacon_time_seconds,function (service_eid) {
 
-        /**
-         *  Compute the ephemeral id using AESkey, scaler and beacon_time_seconds
-         *  first compute temporary key data
-         *  second compute ephemeral id
-         */
+            console.log(service_eid) ;
+            if (service_eid !== eid) callback('Not Equal eid') ;
+            else {
+                /**
+                 *  Saves the identity key, rotation period, and time counter offset from real-time in its non-volatile storage.
+                 */
+
+                var new_beacon = {
+                    identity_key:AESkey ,
+                    rotation_period:scalar,
+                    beacon_time_seconds : beacon_time_seconds,
+                    eid : service_eid
+                }  ;
+
+                RegistredBeacons.create(new_beacon, function (err) {
+                    if (err) return callback('Invalid id');
+                    callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
+                            status:"ACTIVE",
+                            ephemeral_id_registration:  {
+                                beacon_ecdh_public_key:beacon_public_key ,
+                                service_ecdh_public_key: service_public_key,
+                                initial_clock_value:beacon_time_seconds,
+                                rotation_period_exponent:scalar,
+                                initial_eidr:service_eid
+                            }
+                        }
 
 
-        var tstk0 = String.fromCharCode((beacon_time_seconds / (Math.pow(2, 24))) % 256) ;
-        var tstk1 = String.fromCharCode((beacon_time_seconds / Math.pow(2, 16)) % 256) ;
-        var tkdata = "0000000000000000000000ff0000" + tstk0.charCodeAt(0).toString(16)+ tstk1.charCodeAt(0).toString(16) ;
-        console.log( "Temporary Key data", tkdata) ;
-
-        managers.strToHexArray(AESkey,function (ik) {
-
-            var aesEcbTk = new aesjs.ModeOfOperation.ecb(ik);
-
-            managers.strToHexArray(tkdata,function (tkdata_hex_array) {
-
-                console.log(tkdata_hex_array) ;
-
-                var tk_encrypted_bytes = aesEcbTk.encrypt(tkdata_hex_array);
-                var tk = aesjs.utils.hex.fromBytes(tk_encrypted_bytes);
-                console.log("Temporary Key", tk);
-
-                // compute eid
-
-                var tseid0 = String.fromCharCode((beacon_time_seconds / (Math.pow(2, 24))) % 256) ;
-                var tseid1 = String.fromCharCode((beacon_time_seconds / Math.pow(2, 16)) % 256) ;
-                var tseid2 = String.fromCharCode((beacon_time_seconds / (Math.pow(2, 8))) % 256) ;
-                var tseid3 = String.fromCharCode((beacon_time_seconds / Math.pow(2, 0)) % 256) ;
-                var eiddata = "0000000000000000000000" + scalar.charCodeAt(0).toString(16)+
-                    tseid0.charCodeAt(0).toString(16)+ tseid1.charCodeAt(0).toString(16) +
-                    tseid2.charCodeAt(0).toString(16)+ tseid3.charCodeAt(0).toString(16) ;
-                console.log("Ephemeral Id data",eiddata) ;
-
-                // managers.strToHexArray(tk,function (tk_hex_array) {
-                //
-                //     var aesEcbEi = new aesjs.ModeOfOperation.ecb(tk_hex_array);
-                //
-                //     managers.strToHexArray(eiddata,function (eiddata_hex_array) {
-                //
-                //         var ei_encrypted_bytes = aesEcbEi.encrypt(eiddata_hex_array);
-                //         var eid = aesjs.utils.hex.fromBytes(ei_encrypted_bytes);
-                //         console.log("Ephemeral Id",eid);
-                //
-                //     }) ;
-                //
-                //
-                //
-                //
-                //
-                // }) ;
+                    ) ;
+                });
 
 
 
+            }
 
-
-            });
-
-        });
-
-
-
-
+        }) ;
 
 
 
@@ -162,7 +138,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
 
-    callback("good") ;
+
 
 
 };
