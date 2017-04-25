@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
 var beaconSchema = new mongoose.Schema({
-    identity_key: {type: String, required: true, unique: true},
+    _id: String ,
     rotation_period: {type: String, required: true},
     beacon_time_seconds: {type: String, required: true},
     eid: {type: String, required: true},
+    active: {type: Boolean, required: true},
     created_at: {type: Date, default: Date.now},
     updated_at: {type: Date, default: Date.now}
 });

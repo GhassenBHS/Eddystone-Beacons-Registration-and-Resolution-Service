@@ -1,7 +1,8 @@
 /**
  * Created by ghassen on 15/04/17.
  */
-const eid_manager =require('../Eddystone/EidComputation') ;
+const EidComputation =require('../Eddystone/EidComputation') ;
+const EidBroadcasted =require('../Eddystone/EidBroadcasted') ;
 const crypto = require('crypto');
 const base64 = require('base-64');
 const validator = require('validator');
@@ -93,7 +94,8 @@ exports.registerBeaconOwner=function (request,callback) {
 
         var AESkey = key.toString('hex').substring(0,32);
         console.log("AES",AESkey) ;
-        eid_manager.GetEid('ac43b2580b62261217d601d88277e587',scalar,beacon_time_seconds,function (service_eid) {
+
+        EidComputation.GetEid('ac43b2580b62261217d601d88277e587',scalar,beacon_time_seconds,function (service_eid) {
 
             console.log(service_eid) ;
             if (service_eid !== eid) callback('Not Equal eid') ;
@@ -103,14 +105,40 @@ exports.registerBeaconOwner=function (request,callback) {
                  */
 
                 var new_beacon = {
-                    identity_key:AESkey ,
+                    _id:AESkey ,
                     rotation_period:scalar,
                     beacon_time_seconds : beacon_time_seconds,
-                    eid : service_eid
+                    eid : service_eid,
+                    active: true
                 }  ;
+
+
+
 
                 RegistredBeacons.create(new_beacon, function (err) {
                     if (err) return callback('Invalid id');
+
+                    /**
+                     *  Launch a thread that update the eid in the database every 2^k seconds
+                     */
+                    setInterval( function () {
+                        EidBroadcasted.GetEidBroadcasted('ac43b2580b62261217d601d88277e587',10,1492680300,1492680300,function (res) {
+
+                            console.log("res",res) ;
+                            RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res}, function (err, post) {
+
+                                if (err) return next(err);
+                                console.log(post);
+
+                            });
+
+
+                        })
+
+                    } , Math.pow(2,scalar)*1000) ;
+
+
+
                     callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
                             status:"ACTIVE",
                             ephemeral_id_registration:  {

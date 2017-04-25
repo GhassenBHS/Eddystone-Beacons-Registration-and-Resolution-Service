@@ -3,15 +3,6 @@
  */
 const aesjs = require('aes-js');
 
-exports.strToHexArray=function (str,callback) {
-
-    var array=[] ;
-    for (var i = 0; i < str.length; i += 2) {
-        array.push("0x" + str.substr(i, 2));
-    }
-    var uint8_array_from_str = new Uint8Array(array);
-    callback(uint8_array_from_str) ;
-};
 strToHexArray=function (str) {
 
     var array=[] ;
@@ -23,21 +14,6 @@ strToHexArray=function (str) {
 };
 
 
-exports.toHex= function(str) {
-    var hex = '';
-    for(var i=0;i<str.length;i++) {
-
-
-        if (str.charCodeAt(i).toString(16).length === 0)
-            hex += "00";
-        else if (str.charCodeAt(i).toString(16).length === 1)
-            hex="0"+''+str.charCodeAt(i).toString(16) ;
-        else
-            hex=hex += ''+str.charCodeAt(i).toString(16);
-
-    }
-    return hex;
-}  ;
 toHex= function(str) {
     var hex = '';
     for(var i=0;i<str.length;i++) {
@@ -86,10 +62,10 @@ exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
 
     beacon_time_seconds= Math.floor(beacon_time_seconds/Math.pow(2, scalar))*Math.pow(2, scalar);
 
-    var tseid0 = String.fromCharCode(Math.floor((beacon_time_seconds / (Math.pow(2, 24))) % 256)) ;
-    var tseid1 = String.fromCharCode(Math.floor((beacon_time_seconds / Math.pow(2, 16)) % 256)) ;
-    var tseid2 = String.fromCharCode(Math.floor((beacon_time_seconds / (Math.pow(2, 8))) % 256)) ;
-    var tseid3 = String.fromCharCode(Math.floor((beacon_time_seconds / Math.pow(2, 0)) % 256)) ;
+    var tseid0 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 24)) % 256) ;
+    var tseid1 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 16)) % 256) ;
+    var tseid2 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 8)) % 256) ;
+    var tseid3 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 0)) % 256) ;
     var eiddata = "0000000000000000000000" + toHex( String.fromCharCode(scalar))+
         toHex(  tseid0)+ toHex(tseid1) + toHex(tseid2)+toHex(tseid3) ;
 
