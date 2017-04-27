@@ -6,12 +6,14 @@
 
 
 const eid_manager =require('../Eddystone/EidComputation') ;
+var i=0 ;
 
 exports.GetEidBroadcasted = function (AESkey, scaler, beacon_initial_time_seconds,service_initial_time_seconds, callback) {
 
+    i=i+1000 ;
 
     var d = new Date();
-    var current_seconds = Math.round(d.getTime() / 1000);
+    var current_seconds = Math.round(d.getTime() / 1000)+i;
     var beacon_time_seconds = beacon_initial_time_seconds + (current_seconds - service_initial_time_seconds) ;
     var quantum = Math.floor(beacon_time_seconds / Math.pow(2,scaler)) ;
     console.log("Beacon time in seconds:",beacon_time_seconds) ;
@@ -25,13 +27,6 @@ exports.GetEidBroadcasted = function (AESkey, scaler, beacon_initial_time_second
         callback(broadcasted_eid) ;
 
 
-
-
     }) ;
-
-
-
-
-
 
 } ;

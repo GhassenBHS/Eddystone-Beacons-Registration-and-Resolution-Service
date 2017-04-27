@@ -1,71 +1,50 @@
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose');
+    const express = require('express');
+    const router = express.Router();
 
-var RegistredBeacons= require('../Models/beacon.js');
-
-
-var Registration= require('../Controllers/Registration');
-var Resolution= require('../Controllers/Resolution');
+    const Registration= require('../Controllers/Registration');
+    const Resolution= require('../Controllers/Resolution');
 
 
-/**
- * GET rotation period and the service public key.
- */
+    /**
+     * GET rotation period and the service public key.
+     */
 
 
-router.get('/', function(req, res, next) {
+    router.get('/', function(req, res, next) {
 
-    Registration.sendPublicKey(function (key,err) {
+        Registration.sendPublicKey(function (key,err) {
 
-        if (err) return next(err);
-        res.json({
-            public_key: key,
-            rotation_period_min: 5,
-            rotation_period_max: 10
+            if (err) return next(err);
+            res.json({
+                public_key: key,
+                rotation_period_min: 5,
+                rotation_period_max: 10
 
-        });
-
-
-    }) ;
+            });
 
 
-});
 
-router.post('/', function(req, res, next) {
+        }) ;
 
-    Registration.registerBeaconOwner(req,function (response,err) {
+
+    });
+
+    /**
+     * Request by owner to register a beacon
+     * The owner sends beacon_public_key, service_public_key, scalar, beacon_time_seconds, beacon_initial_time_seconds and eid
+     */
+
+    router.post('/', function(req, res, next) {
+
+        Registration.registerBeaconOwner(req,function (response,err) {
             if (err) return next(err);
 
             res.json(response);
-    }) ;
+        }) ;
 
 
-
-});
-
-
-router.get('/:id', function(req, res, next) {
-    RegistredBeacons.findById(req.params.id, function (err, post) {
-        if (err) return next(err);
-        res.json(post);
-    });
-});
-
-router.put('/:id', function(req, res, next) {
-    RegistredBeacons.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
-
-        if (err) return next(err);
-        res.json(post);
 
     });
-});
 
-router.delete('/:id', function(req, res, next) {
-    RegistredBeacons.findByIdAndRemove(req.params.id, req.body, function (err, post) {
-        if (err) return next(err);
-        res.json(post);
-    });
-});
 
-module.exports = router;
+    module.exports = router;

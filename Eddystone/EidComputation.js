@@ -39,8 +39,10 @@ toHex= function(str) {
 
 exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
 
-    var tstk0 = String.fromCharCode((beacon_time_seconds / (Math.pow(2, 24))) % 256) ;
-    var tstk1 = String.fromCharCode((beacon_time_seconds / Math.pow(2, 16)) % 256) ;
+    console.log("Here is passed time: ",beacon_time_seconds) ;
+
+    var tstk0 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 24)) % 256) ;
+    var tstk1 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 16)) % 256) ;
     var tkdata = "0000000000000000000000ff0000" + tstk0.charCodeAt(0).toString(16)+ tstk1.charCodeAt(0).toString(16) ;
     console.log( "Temporary Key data", tkdata) ;
 
@@ -82,3 +84,6 @@ exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
 
     
 } ;
+
+
+

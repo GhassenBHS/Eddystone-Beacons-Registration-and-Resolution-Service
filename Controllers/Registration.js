@@ -3,13 +3,18 @@
  */
 const EidComputation =require('../Eddystone/EidComputation') ;
 const EidBroadcasted =require('../Eddystone/EidBroadcasted') ;
+const ModifyBeacon =require('../Eddystone/ModifyBeacon') ;
+const RegistredBeacons= require('../Models/beacon.js');
 const crypto = require('crypto');
 const base64 = require('base-64');
 const validator = require('validator');
 const HKDF = require('hkdf');
 const aesjs = require('aes-js');
-var mongoose = require('mongoose');
-var RegistredBeacons= require('../Models/beacon.js');
+const mongoose = require('mongoose');
+const cache = require('memory-cache');
+
+
+
 
 
     /**
@@ -19,12 +24,15 @@ var RegistredBeacons= require('../Models/beacon.js');
 
 const service = crypto.createECDH('secp256k1');
 
+
 service.setPrivateKey('b9f3bef3436a80605a106675f6afa9fbdd612e178430c5471fcd53e9210ee5b2','hex') ;
 const service_public_key = service.getPublicKey('hex') ;
+const service_initial_time_seconds = 1492680300 ;
 
 exports.sendPublicKey=function (callback) {
 
     callback(base64.encode(service_public_key)) ;
+
 };
 
 
@@ -38,26 +46,33 @@ exports.registerBeaconOwner=function (request,callback) {
      */
 
 
-    if (!validator.isBase64(request.body.beacon_public_key) || !validator.isBase64(request.body.service_public_key)
-         || !validator.isBase64(request.body.eid))
-    {
-        callback("Verify encoding format") ;
-        return
-    }
+    // if (!validator.isBase64(request.body.beacon_public_key) || !validator.isBase64(request.body.service_public_key)
+    //      || !validator.isBase64(request.body.eid))
+    // {
+    //     callback("Verify encoding format") ;
+    //     return
+    // }
 
 
-    var beacon_public_key=base64.decode(request.body.beacon_public_key) ;
-    var service_public_key=base64.decode(request.body.service_public_key) ;
+    // var beacon_public_key=base64.decode(request.body.beacon_public_key) ;
+    // var service_public_key=base64.decode(request.body.service_public_key) ;
+    // var scalar=request.body.scalar ;
+    // var beacon_time_seconds=request.body.beacon_time_seconds ;
+    // var beacon_initial_time_seconds=request.body.beacon_initial_time_seconds ;
+    // var eid=base64.decode(request.body.eid) ;
+    var beacon_public_key=request.body.beacon_public_key ;
+    var service_public_key=request.body.service_public_key ;
     var scalar=request.body.scalar ;
     var beacon_time_seconds=request.body.beacon_time_seconds ;
-    var eid=base64.decode(request.body.eid) ;
+    var beacon_initial_time_seconds=request.body.beacon_initial_time_seconds ;
+    var eid=request.body.eid ;
 
     // console.log(!validator.isHexadecimal(client_public_key) , !validator.isHexadecimal(client_shared_secret)
     //     , !validator.isInt(rotation_period,{min:1,max:15}) , !validator.isInt(time_stamp) , !validator.isHexadecimal(eid)) ;
 
 
     if (!validator.isHexadecimal(beacon_public_key) || !validator.isHexadecimal(service_public_key)
-        || !validator.isInt(scalar,{min:1,max:15}) || !validator.isInt(beacon_time_seconds)
+        || !validator.isInt(scalar,{min:10,max:15}) || !validator.isInt(beacon_time_seconds)
         || !validator.isHexadecimal(eid))
 
     {
@@ -76,8 +91,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
     if (shared_secret.toString('hex')==='0000000000000000000000000000000000000000000000000000000000000000')
     {
-        // callback("NOTE: shared key is invalid, due to an invalid public key.") ;
-        console.log("ok") ;
+        callback("NOTE: shared key is invalid, due to an invalid public key.") ;
 
     }
 
@@ -95,70 +109,93 @@ exports.registerBeaconOwner=function (request,callback) {
         var AESkey = key.toString('hex').substring(0,32);
         console.log("AES",AESkey) ;
 
-        EidComputation.GetEid('ac43b2580b62261217d601d88277e587',scalar,beacon_time_seconds,function (service_eid) {
+        /**
+         *  Compute the secrets for the activation, deactivation and deletion using the identity key.
+         */
 
-            console.log(service_eid) ;
-            if (service_eid !== eid) callback('Not Equal eid') ;
-            else {
-                /**
-                 *  Saves the identity key, rotation period, and time counter offset from real-time in its non-volatile storage.
-                 */
+        ModifyBeacon.getSecretsActDeactDel(AESkey,function (secrets) {
 
-                var new_beacon = {
-                    _id:AESkey ,
-                    rotation_period:scalar,
-                    beacon_time_seconds : beacon_time_seconds,
-                    eid : service_eid,
-                    active: true
-                }  ;
+            var deactivation_secret = secrets.deactivation_secret ;
+            var activation_secret = secrets.activation_secret ;
+            var delete_secret = secrets.delete_secret ;
 
 
+            EidComputation.GetEid(AESkey,scalar,beacon_time_seconds,function (service_eid) {
 
 
-                RegistredBeacons.create(new_beacon, function (err) {
-                    if (err) return callback('Invalid id');
+                if (service_eid !== eid) callback('Not Equal eid') ;
+                else {
+
 
                     /**
-                     *  Launch a thread that update the eid in the database every 2^k seconds
+                     *  Saves the identity key, rotation period, and time counter offset from real-time in its non-volatile storage.
                      */
-                    setInterval( function () {
-                        EidBroadcasted.GetEidBroadcasted('ac43b2580b62261217d601d88277e587',10,1492680300,1492680300,function (res) {
 
-                            console.log("res",res) ;
-                            RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res}, function (err, post) {
-
-                                if (err) return next(err);
-                                console.log(post);
-
-                            });
-
-
-                        })
-
-                    } , Math.pow(2,scalar)*1000) ;
+                    var new_beacon = {
+                        _id:AESkey ,
+                        rotation_period:scalar,
+                        beacon_initial_time_seconds : beacon_initial_time_seconds,
+                        eid : service_eid,
+                        active: true,
+                        deactivation_secret:deactivation_secret ,
+                        activation_secret: activation_secret ,
+                        delete_secret:delete_secret
+                    }  ;
 
 
 
-                    callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
-                            status:"ACTIVE",
-                            ephemeral_id_registration:  {
-                                beacon_ecdh_public_key:beacon_public_key ,
-                                service_ecdh_public_key: service_public_key,
-                                initial_clock_value:beacon_time_seconds,
-                                rotation_period_exponent:scalar,
-                                initial_eidr:service_eid
+
+                    RegistredBeacons.create(new_beacon, function (err) {
+                        if (err) return callback('Invalid id');
+
+                        /**
+                         *  Launch a thread that update the eid in the database every 2^k seconds
+                         */
+                        setInterval( function () {
+                            EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
+
+                                console.log("res_after update",res) ;
+                                var date = new Date();
+                                RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
+
+                                    if (err) return next(err);
+                                    console.log(post);
+
+                                });
+
+
+                            })
+
+                        } , 30000) ;
+
+
+
+                        callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
+                                status:"ACTIVE",
+                                ephemeral_id_registration:  {
+                                    beacon_ecdh_public_key:beacon_public_key ,
+                                    service_ecdh_public_key: service_public_key,
+                                    initial_clock_value:beacon_time_seconds,
+                                    rotation_period_exponent:scalar,
+                                    initial_eidr:service_eid
+                                }
                             }
-                        }
 
 
-                    ) ;
-                });
+                        ) ;
+                    });
 
 
 
-            }
+                }
+
+            }) ;
+
 
         }) ;
+
+
+
 
 
 
@@ -170,6 +207,8 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
 };
+
+
 
 
 
