@@ -36,10 +36,12 @@
 
     router.post('/', function(req, res, next) {
 
+
         Registration.registerBeaconOwner(req,function (response,err) {
             if (err) return next(err);
 
             res.json(response);
+            console.log("server response: ",response) ;
         }) ;
 
 

@@ -60,6 +60,7 @@ exports.registerBeaconOwner=function (request,callback) {
     // var beacon_time_seconds=request.body.beacon_time_seconds ;
     // var beacon_initial_time_seconds=request.body.beacon_initial_time_seconds ;
     // var eid=base64.decode(request.body.eid) ;
+
     var beacon_public_key=request.body.beacon_public_key ;
     var service_public_key=request.body.service_public_key ;
     var scalar=request.body.scalar ;
@@ -67,13 +68,10 @@ exports.registerBeaconOwner=function (request,callback) {
     var beacon_initial_time_seconds=request.body.beacon_initial_time_seconds ;
     var eid=request.body.eid ;
 
-    // console.log(!validator.isHexadecimal(client_public_key) , !validator.isHexadecimal(client_shared_secret)
-    //     , !validator.isInt(rotation_period,{min:1,max:15}) , !validator.isInt(time_stamp) , !validator.isHexadecimal(eid)) ;
-
 
     if (!validator.isHexadecimal(beacon_public_key) || !validator.isHexadecimal(service_public_key)
         || !validator.isInt(scalar,{min:10,max:15}) || !validator.isInt(beacon_time_seconds)
-        || !validator.isHexadecimal(eid))
+        || !validator.isInt(beacon_initial_time_seconds) || !validator.isHexadecimal(eid))
 
     {
         callback("Verify sent data") ;
@@ -91,7 +89,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
     if (shared_secret.toString('hex')==='0000000000000000000000000000000000000000000000000000000000000000')
     {
-        callback("NOTE: shared key is invalid, due to an invalid public key.") ;
+        callback("Error, null shared secret") ;
 
     }
 
@@ -122,7 +120,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
             EidComputation.GetEid(AESkey,scalar,beacon_time_seconds,function (service_eid) {
 
-
+                console.log("service eid: ",service_eid) ;
                 if (service_eid !== eid) callback('Not Equal eid') ;
                 else {
 
@@ -146,12 +144,13 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
                     RegistredBeacons.create(new_beacon, function (err) {
-                        if (err) return callback('Invalid id');
+                        if (err) { console.log(err) ;callback('Invalid id'); return }
 
                         /**
                          *  Launch a thread that update the eid in the database every 2^k seconds
                          */
                         setInterval( function () {
+
                             EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
                                 console.log("res_after update",res) ;

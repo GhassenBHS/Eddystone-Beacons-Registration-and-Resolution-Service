@@ -3,10 +3,7 @@
      */
     const express = require('express');
     const router = express.Router();
-
-    const RegistredBeacons= require('../Models/beacon.js');
-    const Registration= require('../Controllers/Registration');
-    const Resolution= require('../Controllers/Resolution');
+    const Modification= require('../Controllers/Modification') ;
 
 
 
@@ -24,12 +21,10 @@
 
 
     router.put('/deactivate', function(req, res, next) {
-        RegistredBeacons.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+        Modification.deactivateBeacon(req,next,function (response) {
+            res.json(response) ;
 
-            if (err) return next(err);
-            res.json(post);
-
-        });
+        })
     });
 
 
@@ -46,12 +41,10 @@
      */
 
     router.put('/activate', function(req, res, next) {
-        RegistredBeacons.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+        Modification.activateBeacon(req,next,function (response) {
+            res.json(response) ;
 
-            if (err) return next(err);
-            res.json(post);
-
-        });
+        })
     });
 
     /**
@@ -65,10 +58,10 @@
      */
 
     router.delete('/delete', function(req, res, next) {
-        RegistredBeacons.findByIdAndRemove(req.params.id, req.body, function (err, post) {
-            if (err) return next(err);
-            res.json(post);
-        });
+        Modification.deleteBeacon(req,next,function (response) {
+            res.json(response) ;
+
+        })
     });
 
     module.exports = router;
