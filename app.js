@@ -26,14 +26,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:63342');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    next();
-});
-
 app.use('/', routes);
 app.use('/register', register);
 app.use('/resolve', resolve);
@@ -70,7 +62,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-mongoose.connect('mongodb://127.0.0.1:27017/test', function(err) {
+mongoose.connect('mongodb://beacons:beacons@ds129462.mlab.com:29462/beacon_pfe_db', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {
