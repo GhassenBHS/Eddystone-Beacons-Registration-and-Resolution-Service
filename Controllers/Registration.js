@@ -148,25 +148,9 @@ exports.registerBeaconOwner=function (request,callback) {
 
                         /**
                          *  Launch a thread that update the eid in the database every 2^k seconds
+                         *  Before that, we need to make the first update of eid synchronised with the
+                         *  beacon quantum start otherwise broadcasted eids won't match
                          */
-                        setInterval( function () {
-
-                            EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
-
-                                console.log("res_after update",res) ;
-                                var date = new Date();
-                                RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
-
-                                    if (err) return next(err);
-                                    console.log(post);
-
-                                });
-
-
-                            })
-
-                        } , 30000) ;
-
 
 
                         callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
@@ -182,6 +166,63 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
                         ) ;
+
+                        var d = new Date();
+                        var current_seconds = Math.round(d.getTime() / 1000);
+                        var current_beacon_time_seconds = beacon_initial_time_seconds + (current_seconds - service_initial_time_seconds) ;
+                        var quantum = Math.floor(current_beacon_time_seconds / Math.pow(2,scalar)) ;
+                        var endQunatum = (quantum+1) * Math.pow(2,scalar);
+                        var current_seconds_in_quantum =  Math.floor(endQunatum-current_beacon_time_seconds) ;
+
+                        console.log("Beacon time in seconds:",current_beacon_time_seconds) ;
+                        console.log("Beacon quantum:",quantum) ;
+                        console.log("Start of quantum:",quantum * Math.pow(2,scalar)) ;
+                        console.log("End of quantum:",(quantum+1) * Math.pow(2,scalar)) ;
+
+
+
+                        console.log("How long we'll wait: ",current_seconds_in_quantum);
+
+
+                        setTimeout(function () {
+
+                            // SetInterval do not execute immediately, therefore we call GetEidBroadcasted to make
+                            // it as if immediately executed without waiting 2^scalar
+
+                            EidBroadcasted.GetEidBroadcasted(AESkey,7,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
+
+                                console.log("res_after update_first",res) ;
+                                var date = new Date();
+                                RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
+
+                                    if (err) return next(err);
+                                    console.log(post);
+
+
+                                    setInterval( function () {
+
+                                        EidBroadcasted.GetEidBroadcasted(AESkey,7,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
+
+                                            console.log("res_after update",res) ;
+                                            var date = new Date();
+                                            RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
+
+                                                if (err) return next(err);
+                                                console.log(post);
+
+                                            });
+
+
+                                        })
+
+                                    } , Math.pow(2,scalar)*1000) ;
+
+                                });
+
+
+                            }) ;
+                        }, current_seconds_in_quantum*1000);
+
                     });
 
 

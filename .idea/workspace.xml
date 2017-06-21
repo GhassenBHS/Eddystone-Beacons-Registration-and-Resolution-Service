@@ -3,15 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cfeb04db-875f-4681-bdf5-a0953d17fb96" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Controllers/Modification.js" afterPath="$PROJECT_DIR$/Controllers/Modification.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Controllers/Registration.js" afterPath="$PROJECT_DIR$/Controllers/Registration.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Eddystone/EidBroadcasted.js" afterPath="$PROJECT_DIR$/Eddystone/EidBroadcasted.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Eddystone/EidComputation.js" afterPath="$PROJECT_DIR$/Eddystone/EidComputation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/modify.js" afterPath="$PROJECT_DIR$/routes/modify.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/register.js" afterPath="$PROJECT_DIR$/routes/register.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/resolve.js" afterPath="$PROJECT_DIR$/routes/resolve.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -69,8 +61,8 @@
       <file leaf-file-name="Registration.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Controllers/Registration.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="483">
-              <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+            <state relative-caret-position="225">
+              <caret line="177" column="18" lean-forward="false" selection-start-line="177" selection-start-column="18" selection-end-line="177" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -193,6 +185,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -277,13 +271,11 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="nodejs_interpreter_path" value="/usr/local/nodejs/bin/node" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../owner_dashboard" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="6.10.1" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
@@ -415,6 +407,7 @@
       <workItem from="1494590977493" duration="5891000" />
       <workItem from="1494791388824" duration="619000" />
       <workItem from="1494834961810" duration="2018000" />
+      <workItem from="1498059560415" duration="276000" />
     </task>
     <task id="LOCAL-00001" summary="done with eid">
       <created>1493042751847</created>
@@ -434,13 +427,12 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="170257000" />
+    <option name="totallyTimeSpent" value="170533000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1920" height="1032" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12572636" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12572636" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39910814" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -839,8 +831,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Controllers/Registration.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="483">
-          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+        <state relative-caret-position="225">
+          <caret line="177" column="18" lean-forward="false" selection-start-line="177" selection-start-column="18" selection-end-line="177" selection-end-column="18" />
           <folding />
         </state>
       </provider>
