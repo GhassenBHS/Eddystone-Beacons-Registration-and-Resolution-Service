@@ -62,7 +62,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-mongoose.connect('mongodb://beacons:beacons@ds129462.mlab.com:29462/beacon_pfe_db', function(err) {
+mongoose.connect('mongodb://localhost:27017/test', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {

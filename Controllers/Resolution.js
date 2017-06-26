@@ -37,7 +37,11 @@ exports.resolveEphemeralID=function (req,next,callback) {
 
     RegistredBeacons.find({eid:eid_to_resolve,active:true}, function (err, post) {
         if (err) return next(err);
-        if (post === null) callback(false) ;
+        console.log(post) ;
+        console.log(typeof (post) );
+
+        if (post.length===0) callback(false) ;
+
         else callback(true) ;
 
     });
