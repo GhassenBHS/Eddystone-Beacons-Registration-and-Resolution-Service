@@ -27,7 +27,7 @@ const service = crypto.createECDH('secp256k1');
 
 service.setPrivateKey('b9f3bef3436a80605a106675f6afa9fbdd612e178430c5471fcd53e9210ee5b2','hex') ;
 const service_public_key = service.getPublicKey('hex') ;
-const service_initial_time_seconds = 1492680300 ;
+const service_initial_time_seconds = 0 ;
 
 exports.sendPublicKey=function (callback) {
 
@@ -70,7 +70,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
     if (!validator.isHexadecimal(beacon_public_key) || !validator.isHexadecimal(service_public_key)
-        || !validator.isInt(scalar,{min:10,max:15}) || !validator.isInt(beacon_time_seconds)
+        || !validator.isInt(scalar,{min:5,max:15}) || !validator.isInt(beacon_time_seconds)
         || !validator.isInt(beacon_initial_time_seconds) || !validator.isHexadecimal(eid))
 
     {
@@ -86,6 +86,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
 
     const shared_secret = service.computeSecret(Buffer.from(beacon_public_key,'hex'));
+    console.log("shared",shared_secret) ;
 
     if (shared_secret.toString('hex')==='0000000000000000000000000000000000000000000000000000000000000000')
     {
@@ -116,6 +117,8 @@ exports.registerBeaconOwner=function (request,callback) {
             var deactivation_secret = secrets.deactivation_secret ;
             var activation_secret = secrets.activation_secret ;
             var delete_secret = secrets.delete_secret ;
+
+            console.log("scaler",beacon_time_seconds) ;
 
 
             EidComputation.GetEid(AESkey,scalar,beacon_time_seconds,function (service_eid) {
@@ -189,7 +192,7 @@ exports.registerBeaconOwner=function (request,callback) {
                             // SetInterval do not execute immediately, therefore we call GetEidBroadcasted to make
                             // it as if immediately executed without waiting 2^scalar
 
-                            EidBroadcasted.GetEidBroadcasted(AESkey,7,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
+                            EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
                                 console.log("res_after update_first",res) ;
                                 var date = new Date();
@@ -201,7 +204,7 @@ exports.registerBeaconOwner=function (request,callback) {
 
                                     setInterval( function () {
 
-                                        EidBroadcasted.GetEidBroadcasted(AESkey,7,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
+                                        EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
                                             console.log("res_after update",res) ;
                                             var date = new Date();

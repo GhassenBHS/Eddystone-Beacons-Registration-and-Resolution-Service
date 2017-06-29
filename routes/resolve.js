@@ -8,7 +8,7 @@ var routeCache = require('route-cache');
 
 var Resolution= require('../Controllers/Resolution');
 
-router.post('/',routeCache.cacheSeconds(65536) ,function(req, res, next) {
+router.post('/' ,function(req, res, next) {
 
     Resolution.resolveEphemeralID(req,next,function (isResolved) {
 

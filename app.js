@@ -38,6 +38,14 @@ app.use(function(req, res, next) {
     next(err);
 });
 
+// app.use(function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:63342');
+//     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+//     next();
+// });
+
 // error handlers
 
 // development error handler
@@ -62,7 +70,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-mongoose.connect('mongodb://localhost:27017/test', function(err) {
+mongoose.connect('mongodb://beacons:beacons@ds129462.mlab.com:29462/beacon_pfe_db', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {

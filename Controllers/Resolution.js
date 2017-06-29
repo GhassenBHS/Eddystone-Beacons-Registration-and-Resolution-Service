@@ -13,6 +13,8 @@ exports.resolveEphemeralID=function (req,next,callback) {
      *  Verify user request
      */
 
+    console.log(validator.isBase64(req.body.eid)) ;
+
 
     if (!validator.isBase64(req.body.eid) )
     {
@@ -25,7 +27,7 @@ exports.resolveEphemeralID=function (req,next,callback) {
 
     if (!validator.isHexadecimal(eid_to_resolve))
     {
-        callback("Ephemeral id to resolve schould be in Hex format") ;
+        callback("Ephemeral id to resolve should be in Hex format") ;
         return
     }
 
@@ -37,8 +39,6 @@ exports.resolveEphemeralID=function (req,next,callback) {
 
     RegistredBeacons.find({eid:eid_to_resolve,active:true}, function (err, post) {
         if (err) return next(err);
-        console.log(post) ;
-        console.log(typeof (post) );
 
         if (post.length===0) callback(false) ;
 
