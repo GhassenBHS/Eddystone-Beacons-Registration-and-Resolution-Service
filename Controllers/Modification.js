@@ -13,18 +13,13 @@
          *  Validate user data
          */
 
-        if (!validator.isBase64(request.body.deactivation_secret) )
-        {
-            callback("Verify encoding format") ;
-            return
-        }
 
         var deactivation_secret=base64.decode(request.body.deactivation_secret) ;
         console.log(deactivation_secret) ;
 
         if (!validator.isHexadecimal(deactivation_secret))
         {
-            callback("Deactivation secret should be in Hex format") ;
+            callback("Deactivation secret should be in Hex format and base64 encoded") ;
             return
         }
 
@@ -58,18 +53,13 @@
          *  Validate user data
          */
 
-        if (!validator.isBase64(request.body.activation_secret) )
-        {
-            callback("Verify encoding format") ;
-            return
-        }
 
         var activation_secret=base64.decode(request.body.activation_secret) ;
         console.log(activation_secret) ;
 
         if (!validator.isHexadecimal(activation_secret))
         {
-            callback("activation secret should be in Hex format") ;
+            callback("activation secret should be in Hex format and base64 encoded") ;
             return
         }
 
@@ -98,18 +88,14 @@
          *  Validate user data
          */
 
-        if (!validator.isBase64(request.body.delete_secret) )
-        {
-            callback("Verify encoding format") ;
-            return
-        }
+
 
         var delete_secret=base64.decode(request.body.delete_secret) ;
         console.log(delete_secret) ;
 
         if (!validator.isHexadecimal(delete_secret))
         {
-            callback("Deletion secret should be in Hex format") ;
+            callback("Deletion secret should be in Hex format and base64 encoded") ;
             return
         }
 

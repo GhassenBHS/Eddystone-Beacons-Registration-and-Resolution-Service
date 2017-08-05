@@ -4,6 +4,8 @@ var beaconSchema = new mongoose.Schema({
     rotation_period: {type: String, required: true},
     beacon_initial_time_seconds: {type: String, required: true},
     eid: {type: String, required: true},
+    pastEID : [],
+    futureEID : [],
     active: {type: Boolean, required: true},
     deactivation_secret: {type: String, required: true},
     activation_secret: {type: String, required: true},

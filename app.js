@@ -5,14 +5,40 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var routes = require('./routes/index');
+
 
 var register = require('./routes/register');
 var resolve = require('./routes/resolve');
 var modify = require('./routes/modify');
+var resume = require('./Eddystone/ResumeEidUpdating');
 
 
 var app = express();
+
+// configure passport
+// Configuring Passport
+var passport = require('passport');
+var expressSession = require('express-session');
+// TODO - Why Do we need this key ?
+app.use(expressSession({secret: 'mySecretKey'}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Using the flash middleware provided by connect-flash to store messages in session
+// and displaying in templates
+var flash = require('connect-flash');
+app.use(flash());
+
+// Initialize Passport
+var initPassport = require('./Passport/init');
+initPassport(passport);
+var routes = require('./routes/index')(passport);
+
+
+
+
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -46,6 +72,11 @@ app.use(function(req, res, next) {
 //     next();
 // });
 
+
+
+
+
+
 // error handlers
 
 // development error handler
@@ -70,7 +101,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-mongoose.connect('mongodb://beacons:beacons@ds129462.mlab.com:29462/beacon_pfe_db', function(err) {
+mongoose.connect('mongodb://127.0.0.1:27017/test', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {
@@ -78,7 +109,11 @@ mongoose.connect('mongodb://beacons:beacons@ds129462.mlab.com:29462/beacon_pfe_d
     }
 
 });
+resume.resumeUpdatingEid(function (res) {
+    console.log(res);
 
+
+}) ;
 
 
 module.exports = app;

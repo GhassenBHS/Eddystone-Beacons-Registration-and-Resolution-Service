@@ -40,12 +40,11 @@ toHex= function(str) {
 exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
 
 
-    var cached_tk = cache.get('temporary_key') ;
-    if (cached_tk === null) {
+
 
         var tstk0 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 24)) % 256);
         var tstk1 = String.fromCharCode(Math.floor(beacon_time_seconds / Math.pow(2, 16)) % 256);
-        var tkdata = "0000000000000000000000ff0000" + tstk0.charCodeAt(0).toString(16) + tstk1.charCodeAt(0).toString(16);
+        var tkdata = "0000000000000000000000ff0000" + toHex(tstk0) + toHex(tstk1);
         console.log("Temporary Key data", tkdata);
 
         var ik = strToHexArray(AESkey);
@@ -55,13 +54,10 @@ exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
         console.log(tkdata_hex_array);
 
         var tk_encrypted_bytes = aesEcbTk.encrypt(tkdata_hex_array);
-        cached_tk = aesjs.utils.hex.fromBytes(tk_encrypted_bytes);
-        console.log("Temporary Key", cached_tk);
+        var tk = aesjs.utils.hex.fromBytes(tk_encrypted_bytes);
+        console.log("Temporary Key", tk);
 
-        cache.put('temporary_key', cached_tk, 65536000, function (key, value) {
-            console.log(key + ' did ' + value);
-        }); // Time in ms
-    }
+
 
 
 
@@ -82,7 +78,7 @@ exports.GetEid = function (AESkey, scalar, beacon_time_seconds, callback) {
 
         console.log("Ephemeral Id data", eiddata);
 
-        var tk_hex_array = strToHexArray(cached_tk);
+        var tk_hex_array = strToHexArray(tk);
         var aesEcbEi = new aesjs.ModeOfOperation.ecb(tk_hex_array);
         var eiddata_hex_array = strToHexArray(eiddata);
         var ei_encrypted_bytes = aesEcbEi.encrypt(eiddata_hex_array);

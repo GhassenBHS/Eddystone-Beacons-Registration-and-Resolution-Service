@@ -3,8 +3,10 @@
  */
 const EidComputation =require('../Eddystone/EidComputation') ;
 const EidBroadcasted =require('../Eddystone/EidBroadcasted') ;
+const ClockDrift =require('../Eddystone/ClockDrift') ;
 const ModifyBeacon =require('../Eddystone/ModifyBeacon') ;
 const RegistredBeacons= require('../Models/beacon.js');
+const Owners= require('../Models/owner.js') ;
 const crypto = require('crypto');
 const base64 = require('base-64');
 const validator = require('validator');
@@ -67,184 +69,222 @@ exports.registerBeaconOwner=function (request,callback) {
     var beacon_time_seconds=request.body.beacon_time_seconds ;
     var beacon_initial_time_seconds=request.body.beacon_initial_time_seconds ;
     var eid=request.body.eid ;
+    var fb_id=request.body.fb_id ;
 
+    Owners.find({id:fb_id}, function (err, post) {
+        if (err) return next(err);
 
-    if (!validator.isHexadecimal(beacon_public_key) || !validator.isHexadecimal(service_public_key)
-        || !validator.isInt(scalar,{min:5,max:15}) || !validator.isInt(beacon_time_seconds)
-        || !validator.isInt(beacon_initial_time_seconds) || !validator.isHexadecimal(eid))
+        if (post.length===0) {
+            callback("owner not authenticated") ;
+            console.log("length owner response",post.length) ;
+        }
 
-    {
-        callback("Verify sent data") ;
-        return
-    }
+        else
+        {
 
 
 
-    /**
-     *  Generate the shared secret and check if it is valid
-     */
 
+            if (!validator.isHexadecimal(beacon_public_key) || !validator.isHexadecimal(service_public_key)
+                || !validator.isInt(scalar,{min:5,max:15}) || !validator.isInt(beacon_time_seconds)
+                || !validator.isInt(beacon_initial_time_seconds) || !validator.isHexadecimal(eid))
 
-    const shared_secret = service.computeSecret(Buffer.from(beacon_public_key,'hex'));
-    console.log("shared",shared_secret) ;
+            {
+                callback("Verify sent data") ;
+                return
+            }
+            beacon_time_seconds = parseInt(beacon_time_seconds) ;
+            beacon_initial_time_seconds = parseInt(beacon_initial_time_seconds) ;
+            scalar = parseInt(scalar) ;
 
-    if (shared_secret.toString('hex')==='0000000000000000000000000000000000000000000000000000000000000000')
-    {
-        callback("Error, null shared secret") ;
 
-    }
 
+            /**
+             *  Generate the shared secret and check if it is valid
+             */
 
 
-    /**
-     *  Compute the AES key using HKDF-sha256
-     */
+            const shared_secret = service.computeSecret(Buffer.from(beacon_public_key,'hex'));
+            console.log("shared",shared_secret) ;
 
-    var salt = service_public_key.concat(beacon_public_key) ;
+            if (shared_secret.toString('hex')==='0000000000000000000000000000000000000000000000000000000000000000')
+            {
+                callback("Error, null shared secret") ;
 
-    var hkdf = new HKDF('sha256', salt, shared_secret.toString('hex'));
-    hkdf.derive('', 32, function(key) {
+            }
 
-        var AESkey = key.toString('hex').substring(0,32);
-        console.log("AES",AESkey) ;
 
-        /**
-         *  Compute the secrets for the activation, deactivation and deletion using the identity key.
-         */
 
-        ModifyBeacon.getSecretsActDeactDel(AESkey,function (secrets) {
+            /**
+             *  Compute the AES key using HKDF-sha256
+             */
 
-            var deactivation_secret = secrets.deactivation_secret ;
-            var activation_secret = secrets.activation_secret ;
-            var delete_secret = secrets.delete_secret ;
+            var salt = service_public_key.concat(beacon_public_key) ;
 
-            console.log("scaler",beacon_time_seconds) ;
+            var hkdf = new HKDF('sha256', salt, shared_secret.toString('hex'));
+            hkdf.derive('', 32, function(key) {
 
+                // var AESkey = key.toString('hex').substring(0,32);
+                var AESkey = "4bc4e5ba5120cd53067d3e17384bd803" ;
 
-            EidComputation.GetEid(AESkey,scalar,beacon_time_seconds,function (service_eid) {
+                console.log("AES",AESkey) ;
 
-                console.log("service eid: ",service_eid) ;
-                if (service_eid !== eid) callback('Not Equal eid') ;
-                else {
+                /**
+                 *  Compute the secrets for the activation, deactivation and deletion using the identity key.
+                 */
 
+                ModifyBeacon.getSecretsActDeactDel(AESkey,function (secrets) {
 
-                    /**
-                     *  Saves the identity key, rotation period, and time counter offset from real-time in its non-volatile storage.
-                     */
+                    var deactivation_secret = secrets.deactivation_secret ;
+                    var activation_secret = secrets.activation_secret ;
+                    var delete_secret = secrets.delete_secret ;
 
-                    var new_beacon = {
-                        _id:AESkey ,
-                        rotation_period:scalar,
-                        beacon_initial_time_seconds : beacon_initial_time_seconds,
-                        eid : service_eid,
-                        active: true,
-                        deactivation_secret:deactivation_secret ,
-                        activation_secret: activation_secret ,
-                        delete_secret:delete_secret
-                    }  ;
+                    console.log("scaler",beacon_time_seconds) ;
 
 
+                    EidComputation.GetEid(AESkey,scalar,beacon_time_seconds,function (service_eid) {
 
+                        console.log("service eid: ",service_eid) ;
+                        if (service_eid !== eid) callback('Not Equal eid') ;
+                        else {
 
-                    RegistredBeacons.create(new_beacon, function (err) {
-                        if (err) { console.log(err) ;callback('Invalid id'); return }
 
-                        /**
-                         *  Launch a thread that update the eid in the database every 2^k seconds
-                         *  Before that, we need to make the first update of eid synchronised with the
-                         *  beacon quantum start otherwise broadcasted eids won't match
-                         */
+                            /**
+                             *  Saves the identity key, rotation period, and time counter offset from real-time in its non-volatile storage.
+                             */
 
+                            var new_beacon = {
+                                _id:AESkey ,
+                                rotation_period:scalar,
+                                beacon_initial_time_seconds : beacon_initial_time_seconds,
+                                eid : service_eid,
+                                active: true,
+                                deactivation_secret:deactivation_secret ,
+                                activation_secret: activation_secret ,
+                                delete_secret:delete_secret
+                            }  ;
 
-                        callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
-                                status:"ACTIVE",
-                                ephemeral_id_registration:  {
-                                    beacon_ecdh_public_key:beacon_public_key ,
-                                    service_ecdh_public_key: service_public_key,
-                                    initial_clock_value:beacon_time_seconds,
-                                    rotation_period_exponent:scalar,
-                                    initial_eidr:service_eid
-                                }
-                            }
 
 
-                        ) ;
 
-                        var d = new Date();
-                        var current_seconds = Math.round(d.getTime() / 1000);
-                        var current_beacon_time_seconds = beacon_initial_time_seconds + (current_seconds - service_initial_time_seconds) ;
-                        var quantum = Math.floor(current_beacon_time_seconds / Math.pow(2,scalar)) ;
-                        var endQunatum = (quantum+1) * Math.pow(2,scalar);
-                        var current_seconds_in_quantum =  Math.floor(endQunatum-current_beacon_time_seconds) ;
+                            RegistredBeacons.create(new_beacon, function (err) {
+                                if (err) { console.log(err) ;callback('Invalid id'); return }
 
-                        console.log("Beacon time in seconds:",current_beacon_time_seconds) ;
-                        console.log("Beacon quantum:",quantum) ;
-                        console.log("Start of quantum:",quantum * Math.pow(2,scalar)) ;
-                        console.log("End of quantum:",(quantum+1) * Math.pow(2,scalar)) ;
+                                /**
+                                 *  Launch a thread that update the eid in the database every 2^k seconds
+                                 *  Before that, we need to make the first update of eid synchronised with the
+                                 *  beacon quantum start otherwise broadcasted eids won't match
+                                 */
 
 
+                                callback( {"advertisedId": {type:"EDDYSTONE", "id":"<beacon_id>"},
+                                        status:"ACTIVE",
+                                        ephemeral_id_registration:  {
+                                            beacon_ecdh_public_key:beacon_public_key ,
+                                            service_ecdh_public_key: service_public_key,
+                                            initial_clock_value:beacon_time_seconds,
+                                            rotation_period_exponent:scalar,
+                                            initial_eidr:service_eid
+                                        }
+                                    }
 
-                        console.log("How long we'll wait: ",current_seconds_in_quantum);
 
+                                ) ;
 
-                        setTimeout(function () {
+                                var d = new Date();
+                                var current_seconds = Math.round(d.getTime() / 1000);
+                                var current_beacon_time_seconds = beacon_initial_time_seconds + (current_seconds - service_initial_time_seconds) ;
+                                var quantum = Math.floor(current_beacon_time_seconds / Math.pow(2,scalar)) ;
+                                var endQunatum = (quantum+1) * Math.pow(2,scalar);
+                                var current_seconds_in_quantum =  Math.floor(endQunatum-current_beacon_time_seconds) ;
 
-                            // SetInterval do not execute immediately, therefore we call GetEidBroadcasted to make
-                            // it as if immediately executed without waiting 2^scalar
+                                console.log("Beacon time in seconds:",current_beacon_time_seconds) ;
+                                console.log("Beacon quantum:",quantum) ;
+                                console.log("Start of quantum:",quantum * Math.pow(2,scalar)) ;
+                                console.log("End of quantum:",(quantum+1) * Math.pow(2,scalar)) ;
 
-                            EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
-                                console.log("res_after update_first",res) ;
-                                var date = new Date();
-                                RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
 
-                                    if (err) return next(err);
-                                    console.log(post);
+                                console.log("Synchronize in:  ",current_seconds_in_quantum);
 
 
-                                    setInterval( function () {
 
-                                        EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
-                                            console.log("res_after update",res) ;
-                                            var date = new Date();
-                                            RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
+                                setTimeout(function () {
 
-                                                if (err) return next(err);
-                                                console.log(post);
+                                    // SetInterval do not execute immediately, therefore we call GetEidBroadcasted to make
+                                    // it as if immediately executed without waiting 2^scalar
 
-                                            });
+                                    EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
+                                        console.log("res_after update_first",res) ;
+                                        var date = new Date();
+                                        RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
 
-                                        })
+                                            if (err) return next(err);
+                                            console.log(post);
 
-                                    } , Math.pow(2,scalar)*1000) ;
 
-                                });
+                                            setInterval( function () {
 
+                                                EidBroadcasted.GetEidBroadcasted(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (res) {
 
-                            }) ;
-                        }, current_seconds_in_quantum*1000);
+                                                    console.log("res_after update",res) ;
+                                                    var date = new Date();
 
-                    });
 
+                                                    RegistredBeacons.findByIdAndUpdate(AESkey, {eid:res,updated_at:date}, function (err, post) {
 
+                                                        if (err) return next(err);
+                                                        console.log(post);
 
-                }
+                                                        // Deal with drift
 
-            }) ;
+                                                        ClockDrift.computePastFutureEIDs(AESkey,scalar,beacon_initial_time_seconds,service_initial_time_seconds,function (drift) {
 
+                                                        }) ;
 
-        }) ;
+                                                    });
 
 
+                                                })
+
+                                            } , Math.pow(2,scalar)*1000) ;
+
+                                        });
+
+
+                                    }) ;
+                                }, current_seconds_in_quantum*1000);
+
+                            });
+
+
+
+                        }
+
+                    }) ;
+
+
+                }) ;
+
+
+
+
+
+
+            });
+
+
+
+
+
+        }
 
 
 
 
     });
-
-
 
 
 
