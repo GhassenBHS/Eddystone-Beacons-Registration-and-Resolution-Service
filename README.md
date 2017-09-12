@@ -5,7 +5,13 @@ Engineering Graduation Project
 # Objective
 
 This work is an implementation and test of an open source RESTful web service to register and
-resolve Eddytsone-EID beacons.
+resolve Eddytsone-EID beacons.## Architecture
+
+## Architecture
+
+In this Architecture, we develoepd the web service, a dashboard for a beacon owner to register and modify EID beacons and an Android mobile app to test Resolution. A beacon simulation have been used to test all the functionnalities.
+
+![alt text](./deployment.png "Figure illustrating Drift")
 
 ## Functional Requirements
 
