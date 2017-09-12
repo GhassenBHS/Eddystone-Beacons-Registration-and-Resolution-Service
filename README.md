@@ -86,11 +86,11 @@ back a response to the client.
 
 In order to test the implemented service, we will use: 
 
-1. Beacon owner dashboard testing app to perform registration and resolution requests (check repo)
-2. Android Testing Mobile App to detect beacon signal and resolve it with the webservice (check repo)
+1. Beacon owner dashboard testing app to perform registration and resolution requests (check owner_dash branch)
+2. Android Testing Mobile App to detect beacon signal and resolve it with the webservice (check mobile_app_test branch)
 3. Beacon simulator app on Play Store.
 
-Registration: https://www.youtube.com/watch?v=ynssouZWB0o&t=89s 
+Registration: https://www.youtube.com/watch?v=ynssouZWB0o&t=89s
 Resolution: https://www.youtube.com/watch?v=f8EUPED3Z-0 
 
 
