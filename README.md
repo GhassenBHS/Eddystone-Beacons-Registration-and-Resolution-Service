@@ -78,70 +78,33 @@ Once we have the exact EID and the list of past/future EIDs, every time we recei
 request we are going to look through these and try to map the EID to a real beacon ID and send
 back a response to the client.
 
+## Elliptic Curve Cryptography 
+1. Crypto API for Node.js 
+2. Elliptic curve secp256k1 (bitcoin curve)
 
-```
-Give the example
-```
+## Testing 
 
-And repeat
+In order to test the implemented service, we will use: 
 
-```
-until finished
-```
+1. Beacon owner dashboard testing app to perform registration and resolution requests (check repo)
+2. Android Testing Mobile App to detect beacon signal and resolve it with the webservice (check repo)
+3. Beacon simulator app on Play Store.
 
-End with an example of getting some data out of the system or using it for a little demo
+Registration: https://www.youtube.com/watch?v=ynssouZWB0o&t=89s 
+Resolution: https://www.youtube.com/watch?v=f8EUPED3Z-0 
 
-## Running the tests
 
-Explain how to run the automated tests for this system
 
-### Break down into end to end tests
 
-Explain what these tests test and why
 
-```
-Give an example
-```
 
-### And coding style tests
 
-Explain what these tests test and why
 
-```
-Give an example
-```
 
-## Deployment
 
-Add additional notes about how to deploy this on a live system
 
-## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
 
-## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
 
