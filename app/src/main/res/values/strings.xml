@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">beaconEddystoneEID</string>
+    <string name="title_scan">Resolve</string>
+    <string name="title_info">About</string>
+    <string name="title_setting">Settings</string>
+    <string name="title_dialog_resolve">Beacon Resolution</string>
+    <string name="content_dialog_resolve">If this beacon is registered, you can connect to
+    the web service to resolve it.</string>
+    <string name="title_activity_scan">Beacons Nearby</string>
+    <string name="notif_scan">Scan for nearby beacons, get their parameters and resolve them with
+    the web service if they are registered</string>
+
+</resources>

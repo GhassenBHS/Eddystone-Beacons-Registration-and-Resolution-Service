@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sml="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@android:color/white">
+
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+
+                android:layout_marginLeft="40dp"
+                android:id="@+id/mac_address"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MAC Adress:"
+                android:textSize="12sp"
+                android:textColor="@android:color/black"
+                />
+
+
+
+            <TextView
+                android:layout_marginLeft="40dp"
+                android:id="@+id/eid"
+                android:layout_below="@+id/mac_address"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Broadcasted EID:"
+                android:textSize="12sp"
+                android:textColor="@android:color/black"
+
+                />
+
+            <TextView
+                android:id="@+id/rssi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/eid"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="12dp"
+                android:textSize="8sp"
+                android:text="RSSI"
+                android:textColor="@android:color/black"
+
+                />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
