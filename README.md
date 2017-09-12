@@ -1,14 +1,11 @@
 # Eddystone-Beacons-Registration-and-Resolution-Service
 Engineering Graduation Project
 
-Objective:
+
+# Objective
 
 This work is an implementation and test of an open source RESTful web service to register and
 resolve Eddytsone-EID beacons.
-
-# Project Title
-
-One Paragraph of project description goes here
 
 ## Getting Started
 
