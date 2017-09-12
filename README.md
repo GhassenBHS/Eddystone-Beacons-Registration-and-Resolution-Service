@@ -26,13 +26,48 @@ Every route is handled by a js file in the “routes” folder that contains min
 Basically, a file in the routes folder retrieves the data from requests and calls a controller function.
 Once output is ready, it fires the response to the requester.
 
+## Registration.js Controller
+
+The first controller is “Registration.js”. In this controller, we handle a:
+• Get request on the corresponding route to retrieve the server parameters.
+• Post request on the corresponding route to register the beacon. Basically, it consists in
+verifying the sent data, compute the server’s ephemeral id version, encrypt it and compare
+it with the beacon’s version. If results match then beacon is registered. In this route, the
+modification secrets are computed also before putting data in database. Finally, we launch
+a thread that keeps recomputing the ephemeral id every time period depending on the
+requester sent rotation period. This is handled by “getBroadcastedEID.js”.
+The second controller is “Resolution.js”. In this controller, we handle a:
+• Post request to resolve the beacon. Sent data is verified in a first step then the server parses
+the database looking for an ephemeral id match. Response is fired in function of that
+database search request.
+
+## Resolution.js Controller
+
+The second controller is “Resolution.js”. In this controller, we handle a:
+• Post request to resolve the beacon. Sent data is verified in a first step then the server parses
+the database looking for an ephemeral id match. Response is fired in function of that
+database search request.
+
+## Modifictaion.js Controller
+
+The third controller is “Modification.js”. In this controller, we handle a:
+• Post request to handle deactivation
+• Post request to handle activation
+• Post request to handle deletion
 
 
-## Installing
 
-A step by step series of examples that tell you have to get a development env running
+## Dealing With Drift
 
-Say what the step will be
+Every time we update the EID of a beacon, we are going to compute the time passed in seconds
+since registration. For every 2000 seconds of this interval we have a maximum drift of one second.
+We check then how many rotation periods in those drifted seconds by dividing that value over the
+number of seconds in an interval. to decide how many past and future EIDs to compute. Finally,
+we compute the EIDs and store them in the database.
+Once we have the exact EID and the list of past/future EIDs, every time we receive a resolution
+request we are going to look through these and try to map the EID to a real beacon ID and send
+back a response to the client.
+
 
 ```
 Give the example
