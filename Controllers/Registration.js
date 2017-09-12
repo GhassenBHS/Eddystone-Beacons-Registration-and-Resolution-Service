@@ -27,7 +27,7 @@ const cache = require('memory-cache');
 const service = crypto.createECDH('secp256k1');
 
 
-service.setPrivateKey('b9f3bef3436a80605a106675f6afa9fbdd612e178430c5471fcd53e9210ee5b2','hex') ;
+service.setPrivateKey('****************','hex') ;
 const service_public_key = service.getPublicKey('hex') ;
 const service_initial_time_seconds = 0 ;
 
