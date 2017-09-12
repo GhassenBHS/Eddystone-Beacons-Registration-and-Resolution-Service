@@ -7,19 +7,28 @@ Engineering Graduation Project
 This work is an implementation and test of an open source RESTful web service to register and
 resolve Eddytsone-EID beacons.
 
-## Getting Started
+## Functional Requirements
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+ 1. Allow a beacon owner to authenticate.
+ 2. Register Eddystone-EID beacons.
+ 3. Resolve-EID beacons.
+ 4. Activate, deactivate or delete a registered beacon.
 
-### Prerequisites
 
-What things you need to install the software and how to install them
+## Webservice Routes
 
-```
-Give examples
-```
+1. https://beacon-resolution-service.herokuapp.com/register
+2. https://beacon-resolution-service.herokuapp.com/resolve
+3. https://beacon-resolution-service.herokuapp.com/modify
+4. https://beacon-resolution-service.herokuapp.com/authenticate
 
-### Installing
+Every route is handled by a js file in the “routes” folder that contains minimum logic.
+Basically, a file in the routes folder retrieves the data from requests and calls a controller function.
+Once output is ready, it fires the response to the requester.
+
+
+
+## Installing
 
 A step by step series of examples that tell you have to get a development env running
 
