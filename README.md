@@ -60,7 +60,7 @@ The third controller is “Modification.js”. In this controller, we handle a:
 
 ## Dealing With Drift
 
-![alt text](https://drive.google.com/open?id=0BzILJAT_EtWcQjNFVUVfU0thY2c)
+![alt text](https://drive.google.com/open?id=0BzILJAT_EtWcQjNFVUVfU0thY2c "Figure illustrating Drift")
 
 
 Every time we update the EID of a beacon, we are going to compute the time passed in seconds
